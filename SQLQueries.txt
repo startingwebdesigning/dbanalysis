@@ -1,1 +1,17 @@
-select * from table;
+Insert data in MySQL:
+create table supply_chain(SHIPMT_ID int, ORIG_STATE int, ORIG_MA int, ORIG_CFS_AREA varchar(15), DEST_STATE int, DEST_MA int, DEST_CFS_AREA varchar(15), NAICS int, QUARTER int, SCTG int, MODE int, SHIPMT_VALUE float(5), SHIPMT_WGHT float(5), SHIPMT_DIST_GC int, SHIPMT_DIST_ROUTED int, TEMP_CNTL_YN char, EXPORT_YN char, EXPORT_CNTRY char, HAZMAT char, WGT_FACTOR float(5));
+load data local infile "export.csv" into table newsupply fields terminated by ',' lines terminated by '\n';
+
+Read data from MySQL:
+1. Select * from supply_chain
+2. select * from supply_chain where orig_state = 1 and dest_state = 1 and quarter=1;
+3. select orig_state,sum(shipmt_wt) as total_shipment from supply_chain where naics=4248 group by orig_state order by total_shipment desc;
+4. select * from supply_chain where orig_state = 1;
+5. select * from supply_chain where shipmt_val > 50000;
+6. select cityarea.area_desc,naics.description,sum(shipmt_val) as total_shipment from supply_chain inner join cityarea on cityarea.area_id=supply_chain.orig_area inner join naics on naics.naics_no=supply_chain.naics where exportyn='y' group by orig_area,naics order by total_shipment desc limit 10;
+
+Update MySQL Data:
+update supply_chain set naics=314 where naics=313;
+
+Delete MySQL Data:
+delete from supply_chain where naics=314;
