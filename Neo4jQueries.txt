@@ -1,0 +1,24 @@
+Insert Data in Neo4J:
+load csv with headers from "file:///cityarea.csv" as row merge (l:Location{city:row.city_id,state: row.state_id,area: row.area_id,type: row.area_type, name: row.area_name}) load csv with headers from "file:///export.csv" as row match (s:Location{area:row.ORIG_CFS_AREA}) match (d:Location{area:row.DEST_CFS_AREA}) merge (s)-[: shipment{id: row.SHIPMT_ID, naics: row.NAICS, quarter: row.QUARTER, sctg: row.SCTG, mode: row.MODE, value: row.SHIPMT_VALUE, weight: row.SHIPMT_WGHT, distgc: row.SHIPMT_DIST_GC, distrouted: row.SHIPMT_DIST_ROUTED, tempcontrol: row.TEMP_CNTL_YN, exportyn: row.EXPORT_YN, exportcountry: row.EXPORT_CNTRY, hazmat: row.HAZMAT, weightfactor: row.WGT_FACTOR }] -> (d);
+
+Read Data from Neo4J:
+1. match (n)-[r]-(m) 
+return (r);
+2. match (n:Location{state:"1"})-[r{quarter:"1"}]-(m:Location{state:"1"})
+return (r)
+3. match (n)-[r:shipment{naics: "4248"}]->(m)
+return n.state, sum(r.weight) as total_weight order by total_weight desc;
+4. match (n{state:"1"})-[r:shipment]-(m) 
+return (r);
+5. match (n:Location)-[r]-(m:Location) where toInteger(r.value) > 50000
+return (r)
+6. match (n:Location)<-[r:shipment{exportyn: "Y"}]-(m:Location)
+return n.name, r.naics, sum(r.value) as total_value order by total_value desc limit 10;
+
+Updata data in Neo4J:
+match (n:Location)<-[r:shipment{naics:"313"}]-(m:Location)
+set r.naics="314";
+
+Delete Data in Neo4J:
+match (n:Location)<-[r:shipment{naics:"314"}]-(m:Location)
+delete (r);
