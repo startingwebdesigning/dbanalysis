@@ -1,0 +1,16 @@
+Insert Data to MongoDB:
+mongoimport export.json -d research -c supply_chain --jsonArray –drop
+
+Read Data from MongoDB: (We add .explain("executionStats") at the end of each query to get the time taken by the query)
+1. db.shipments.find();
+2. db.shipments.find({"ORIG_STATE":1,"DEST_STATE":1,"QUARTER":1})
+3. db.shipments.aggregate([{$match: {NAICS: 4248}},{$group: {_id: "$ORIG_STATE", total_weight: {$sum: "$SHIPMT_WGHT"}}}]);
+4. db.shipments.find({"ORIG_STATE":1})
+5. db.shipments.find({SHIPMT_VALUE: {$gt : 50000}})
+6. db.shipments.aggregate([{$match: {"EXPORT_YN":"Y"}},{$group: {_id: {"NAICS": "$NAICS", "ORIG_CFS_AREA":"$ORIG_CFS_AREA"}, total_value: {$sum: "$SHIPMT_VALUE"}}},{$sort:{total_value: - 1}},{$limit: 10},{$lookup: { "from": "cityarea", "localField": "_id.ORIG_CFS_AREA", "foreignField": "area_id", "as": "area"}},{$lookup: { "from": "naics", "localField": "_id.NAICS", "foreignField": "NAICS", "as": "naics_desc"}},{$project:{ "AREA": "$area.area_description", "NAICS": "$naics_desc.Description", total_value: 1, _id: 0 }}]);
+
+Update MongoDB Data:
+db.shipments.updateMany({ "NAICS": 313}, {$set: {"NAICS": 314}}).
+
+Delete data from MongoDB:
+db.shipments.deleteMany({"NAICS":314});
